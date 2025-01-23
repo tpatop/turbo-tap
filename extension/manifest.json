@@ -1,0 +1,22 @@
+{
+    "manifest_version": 3,
+    "name": "Random Image Clicker",
+    "version": "1.0",
+    "description": "Расширение для случайных кликов по элементу.",
+    "permissions": [
+        "scripting",
+        "activeTab"
+    ],
+    "host_permissions": [
+        "*://*/*"
+    ],
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["content.js"]
+        }
+    ],
+    "action": {
+        "default_popup": "popup.html"
+    }
+}

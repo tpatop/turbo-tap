@@ -1,52 +1,104 @@
-console.log("Random Clicker запущен!");
+console.log("Random Clicker с человеческим поведением!");
 
-// Функция для генерации случайных задержек
 function randomDelay(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-// Функция для клика в случайную точку элемента
-async function clickRandomPoint(selector) {
-  const element = document.querySelector(selector);
-  if (!element) {
+// Функция для плавного перемещения мыши
+async function moveMouseSmoothly(startX, startY, endX, endY, steps, duration) {
+  const stepX = (endX - startX) / steps;
+  const stepY = (endY - startY) / steps;
+  const stepDuration = duration / steps;
+
+  for (let i = 0; i <= steps; i++) {
+    const currentX = startX + stepX * i;
+    const currentY = startY + stepY * i;
+    window.dispatchEvent(
+      new MouseEvent("mousemove", {
+        clientX: currentX,
+        clientY: currentY,
+        bubbles: true,
+        cancelable: true,
+      })
+    );
+    await new Promise((resolve) => setTimeout(resolve, stepDuration));
+  }
+}
+
+// Функция для случайных движений мыши перед кликом
+async function randomMouseMovement(rect) {
+  const randomX = Math.random() * rect.width;
+  const randomY = Math.random() * rect.height;
+  await moveMouseSmoothly(rect.left, rect.top, rect.left + randomX, rect.top + randomY, 15, randomDelay(150, 1200));
+  console.log(`Случайное движение мыши на координаты (${rect.left + randomX}, ${rect.top + randomY})`);
+}
+
+// Функция для клика с задержкой
+async function clickWithDelay(selector) {
+  const canvas = document.querySelector(selector);
+  if (!canvas) {
     console.error(`Элемент с селектором '${selector}' не найден.`);
     return;
   }
 
-  const rect = element.getBoundingClientRect(); // Получаем размеры элемента
-  const x = Math.random() * rect.width; // Случайная координата X внутри элемента
-  const y = Math.random() * rect.height; // Случайная координата Y внутри элемента
+  // Получаем размеры canvas
+  const rect = canvas.getBoundingClientRect();
+  const randomX = Math.random() * rect.width;
+  const randomY = Math.random() * rect.height;
 
+  console.log(`Сначала перемещаем мышь к (${rect.left + randomX}, ${rect.top + randomY})`);
+
+  // Случайное движение мыши
+  await randomMouseMovement(rect);
+
+  // Задержка перед кликом (имитация размышлений)
+  const thinkDelay = randomDelay(200, 1500);
+  console.log(`Пауза перед кликом: ${thinkDelay} мс`);
+  await new Promise(resolve => setTimeout(resolve, thinkDelay));
+
+  // Клик
   const clickEvent = new MouseEvent("click", {
-    clientX: rect.x + x,
-    clientY: rect.y + y,
+    clientX: rect.left + randomX,
+    clientY: rect.top + randomY,
     bubbles: true,
-    cancelable: true
+    cancelable: true,
   });
-
-  element.dispatchEvent(clickEvent); // Имитируем клик
-  console.log(`Клик выполнен по координатам (${rect.x + x}, ${rect.y + y}) внутри элемента '${selector}'`);
+  canvas.dispatchEvent(clickEvent);
+  console.log(`Клик по (${rect.left + randomX}, ${rect.top + randomY})`);
 }
 
-// Запуск кликов с интервалом
+// Бесконечные клики с паузами
 (async () => {
-  const targetSelector =
-    "body > div.grid.h-full.min-h-full.grid-cols-1.grid-rows-1.bg-bg.*\\:col-span-1.*\\:col-start-1.*\\:row-span-1.*\\:row-start-1.overflow-hidden > div.relative.flex.sm\\:h-full.overflow-auto.w-full.flex-col > main > div.flex.flex-col.h-full.flex-wrap.gap-10 > div.flex-1.min-w-\\[320px\\].sm\\:min-w-\\[640px\\].w-full.lg\\:w-auto.overflow-hidden > div > div.relative.w-full.lg\\:max-w-\\[800px\\].\\32 xl\\:max-w-\\[1000px\\].space-y-2.rounded-lg > div.absolute.inset-0.bottom-20.flex";
-
+  const canvasSelector = "canvas[data-sentry-element='Stage']";
+  const sessionStartTime = Date.now();
   let lastBreakTime = Date.now();
+  const maxWorkTime = randomDelay(8 * 60 * 60 * 1000, 10 * 60 * 60 * 1000); // Максимальное время работы (8-10 часов)
+  const sleepTime = randomDelay(14 * 60 * 60 * 1000, 16 * 60 * 60 * 1000); // Время на сон (14-16 часов)
 
-  for (let i = 0; i < 240; i++) {
-    await clickRandomPoint(targetSelector); // Нажимаем в случайную точку внутри элемента
-    const delay = randomDelay(300, 2500); // Случайная задержка между кликами
+  while (true) {
+    const timeSpent = Date.now() - sessionStartTime;
+    
+    if (timeSpent >= maxWorkTime) {
+      // Если рабочее время закончено, "засыпаем"
+      const remainingSleepTime = sleepTime - (timeSpent - maxWorkTime);
+      console.log(`Рабочее время завершено. Спим ${remainingSleepTime / 1000} секунд.`);
+      await new Promise(resolve => setTimeout(resolve, remainingSleepTime));
+      // После сна начинается новый рабочий цикл
+      sessionStartTime = Date.now();
+    }
+
+    await clickWithDelay(canvasSelector); // Клик с задержкой и случайным движением
+    const delay = randomDelay(300, 2000); // Задержка между кликами
     console.log(`Ожидание ${delay} мс перед следующим кликом`);
-    await new Promise(r => setTimeout(r, delay));
+    await new Promise(resolve => setTimeout(resolve, delay));
 
-    // Каждые 10-15 минут делаем перерыв на 2-5 минут
-    if (Date.now() - lastBreakTime > randomDelay(600000, 900000)) {
-      const breakDuration = randomDelay(120000, 300000); // Перерыв 2-5 минут
-      console.log(`Перерыв на ${breakDuration / 1000} секунд`);
-      await new Promise(r => setTimeout(r, breakDuration));
-      lastBreakTime = Date.now();
+    // Пауза каждые 10-15 минут
+    const timeSinceLastBreak = Date.now() - lastBreakTime;
+    if (timeSinceLastBreak > randomDelay(10 * 60 * 1000, 15 * 60 * 1000)) {
+      const breakDuration = randomDelay(2 * 60 * 1000, 5 * 60 * 1000); // Перерыв на 2-5 минут
+      console.log(`Перерыв на ${breakDuration / 1000} секунд.`);
+      await new Promise(resolve => setTimeout(resolve, breakDuration));
+      lastBreakTime = Date.now(); // Обновление времени последнего сна
     }
   }
 })();

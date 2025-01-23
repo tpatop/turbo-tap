@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
-    "name": "Random Image Clicker",
-    "version": "1.0",
-    "description": "Расширение для случайных кликов по элементу.",
+    "name": "turbo fuck",
+    "version": "1.3",
+    "description": "Расширение для turbo tap со сном.",
     "permissions": [
         "scripting",
         "activeTab"

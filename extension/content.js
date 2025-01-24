@@ -29,7 +29,7 @@ async function moveMouseSmoothly(startX, startY, endX, endY, steps, duration) {
 async function randomMouseMovement(rect) {
   const randomX = Math.random() * rect.width;
   const randomY = Math.random() * rect.height;
-  await moveMouseSmoothly(rect.left, rect.top, rect.left + randomX, rect.top + randomY, 15, randomDelay(150, 1200));
+  await moveMouseSmoothly(rect.left, rect.top, rect.left + randomX, rect.top + randomY, 15, randomDelay(100, 300));
   console.log(`Случайное движение мыши на координаты (${rect.left + randomX}, ${rect.top + randomY})`);
 }
 
@@ -52,7 +52,7 @@ async function clickWithDelay(selector) {
   await randomMouseMovement(rect);
 
   // Задержка перед кликом (имитация размышлений)
-  const thinkDelay = randomDelay(200, 1500);
+  const thinkDelay = randomDelay(100, 500);
   console.log(`Пауза перед кликом: ${thinkDelay} мс`);
   await new Promise(resolve => setTimeout(resolve, thinkDelay));
 
@@ -95,7 +95,7 @@ async function clickWithDelay(selector) {
     // Пауза каждые 10-15 минут
     const timeSinceLastBreak = Date.now() - lastBreakTime;
     if (timeSinceLastBreak > randomDelay(10 * 60 * 1000, 15 * 60 * 1000)) {
-      const breakDuration = randomDelay(2 * 60 * 1000, 5 * 60 * 1000); // Перерыв на 2-5 минут
+      const breakDuration = randomDelay(1 * 60 * 1000, 2 * 60 * 1000); // Перерыв на 2-5 минут
       console.log(`Перерыв на ${breakDuration / 1000} секунд.`);
       await new Promise(resolve => setTimeout(resolve, breakDuration));
       lastBreakTime = Date.now(); // Обновление времени последнего сна

@@ -7,7 +7,7 @@ document.getElementById("start").addEventListener("click", () => {
     });
   });
   
-  document.getElementById("stop").addEventListener("click", () => {
-    console.log("Остановка скрипта пока не реализована!");
-  });
+  // document.getElementById("stop").addEventListener("click", () => {
+  //   console.log("Остановка скрипта пока не реализована!");
+  // });
   

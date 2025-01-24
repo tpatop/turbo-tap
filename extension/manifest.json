@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "turbo fuck",
-    "version": "1.4",
+    "version": "1.5",
     "description": "Расширение для turbo tap со сном.",
     "permissions": [
         "scripting",
